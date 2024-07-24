@@ -1,16 +1,18 @@
 [tool.poetry]
-name = "sample-project"
+name = "ocrt"
 version = "0.1.0"
 description = ""
-authors = ["Author Name <author@example.com>"]
-# readme = "README.md"
+authors = ["herulume"]
+readme = "README.md"
 # license = "BSD"
 packages = [
-  { include = "sample_package" }
+  { include = "ocrt" }
 ]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+numpy = "^2.0.1"
+opencv-python = "^4.10.0.84"
 
 [build-system]
 requires = ["poetry-core"]

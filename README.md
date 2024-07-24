@@ -4,7 +4,7 @@ Python script to generate openers for [OpenerCreator](https://github.com/herulum
 
 ## About
 
-To get started, run the following (skip `nix develop` if you have nix-direv:
+To get started, run the following (skip `nix develop` if you have nix-direv):
 
 ```
 $ nix develop

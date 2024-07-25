@@ -11,3 +11,5 @@ $ nix develop
 $ poetry run python -m sample_package
 Hello, world!
 ```
+
+Thank you [JetBrains](https://www.jetbrains.com/pycharm/) for the [open-source license](https://www.jetbrains.com/community/opensource/).

@@ -15,7 +15,7 @@ $ poetry run python ocrt <job> <path_to_opener_image>
 `<path_to_opener_image>` should be an opener's PNG from The Balance, which will be exported as a JSON file to `output/<job>_opener.json`. 
 
 
-`<job>` should be the shorthand form for the chosen job, such as sge, blm, dnc, for example.
+`<job>` should be the shorthand form for the chosen job, such as sge, rpr or dnc.
 
 Openers with a high number of skills can take a bit to generate.
 

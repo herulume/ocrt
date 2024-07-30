@@ -13,6 +13,7 @@ packages = [
 python = "^3.10"
 numpy = "^2.0.1"
 opencv-python = "^4.10.0.84"
+imutils = "^0.5.4"
 
 [build-system]
 requires = ["poetry-core"]

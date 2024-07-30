@@ -1,9 +1,10 @@
+import os
+import sys
+import json
 import cv2 as cv
 import numpy as np
-import os
 from collections.abc import Iterable
-from imutils.object_detection import non_max_suppression  #
-import sys
+from imutils.object_detection import non_max_suppression
 
 
 def recursive_len(item):
@@ -11,10 +12,6 @@ def recursive_len(item):
         return sum(recursive_len(subitem) for subitem in item)
     else:
         return 1
-
-
-def has_match(inp):
-    return recursive_len(inp) > 0
 
 
 def get_role(job: str):
@@ -29,39 +26,13 @@ def get_role(job: str):
     for role in roles:
         if job in roles[role]:
             return role
+    print("[!] Invalid job! Please use the job shorthand name. Ex: sge, blm, rpr")
+    exit(1)
 
 
-def detect_job(opener: str) -> str:
-    """For a given opener (filename), will return the job it belongs to."""
-
-    img = cv.imread(f"{opener}", cv.IMREAD_GRAYSCALE)
-    assert img is not None, "file could not be read, check with os.path.exists()"
-    img2 = img.copy()
-
-    for class_icon in os.listdir("jobs"):
-        template = cv.imread(f"jobs/{os.fsdecode(class_icon)}", cv.IMREAD_GRAYSCALE)
-        assert (
-            template is not None
-        ), "file could not be read, check with os.path.exists()"
-        w, h = template.shape[::-1]
-
-        img = img2.copy()
-        method = getattr(cv, "TM_CCOEFF_NORMED")
-
-        # Apply template Matching
-        res = cv.matchTemplate(img, template, method)
-        threshold = 0.8
-        loc = np.where(res >= threshold)
-        for pt in zip(*loc[::-1]):
-            cv.rectangle(img, pt, (pt[0] + w, pt[1] + h), 255, 2)
-
-        if has_match(loc):
-            return os.fsdecode(class_icon).split(".")[0]
-
-
-def detect_skills(opener: str, job: str, role: str) -> dict:
-    """Given an opener, returns which skills are used in it"""
-    job_path = f"skills/{role}/{job}"
+def detect_actions(opener: str, job: str, role: str) -> list:
+    """Given an opener, returns which actions are used in it"""
+    job_path = f"actions/{role}/{job}"
     opener = cv.imread(f"{opener}", cv.IMREAD_GRAYSCALE)
     assert opener is not None, "file could not be read, check with os.path.exists()"
     op = opener.copy()
@@ -86,7 +57,7 @@ def detect_skills(opener: str, job: str, role: str) -> dict:
             rects.append((x, y, x + template_w, y + template_h))
         pick = non_max_suppression(np.array(rects))
 
-        if has_match(pick):
+        if recursive_len(pick) > 0:
             skillname = skill.split(".")[0]
             actions[skillname] = pick
     a = []
@@ -102,19 +73,24 @@ def detect_skills(opener: str, job: str, role: str) -> dict:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
+    if len(sys.argv) != 3:
         print(
-            """Insufficient arguments.
+            """Incorrect number of arguments.
 Usage:
-    python3 ocrt <opener_filepath>"""
+    python3 ocrt <job> <opener_filepath>"""
         )
         exit(0)
-    opener = sys.argv[1]
+    opener = sys.argv[2]
+    job = sys.argv[1].lower()
     if os.path.isfile(f"{opener}"):
         print("[-] This may take a bit.")
-        job = detect_job(opener)
-        actions = detect_skills(opener, job, get_role(job))
+        actions = detect_actions(opener, job, get_role(job))
+        out = {}
+        out[job] = actions
+        with open(f"output/{job.lower()}_opener.json", "w+") as f:
+            f.write(json.dumps(out))
+        print(f"[-] Done! {job.upper()} Opener saved to output/{job}_actions.json. ")
+        # print(actions)
     else:
         print("[!] Opener not found!\nUsage:\n    python3 ocrt <opener_filepath>")
         exit(0)
-    print(actions)
